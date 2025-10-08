@@ -229,10 +229,56 @@ void komplementer(int source[][N], int dest[][N], int n)
     }
 }
 
+bool kormentes(int graf[][N], int n)
+{
+    feltolt(p, n, -1);   
+    feltolt(visited, n, -1);   
+    int start = 0;
+    stack<int> verem;
+    verem.push(start);
+    while(!verem.empty()){
+        int u = verem.top();
+        verem.pop();
+        if(!visited[u]) //meg nem latogattuk meg
+        {
+            visited[u] = true;
+            cout << u << " ";
+            for(int i = 0; i < n; i++)
+            {
+                if(graf[u][i])
+                {
+                    if(!visited[i])
+                    {
+                        p[i] = u;
+                        verem.push(i);
+                    }
+                    else if(p[u] != i)
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    return true;
+}
+
+void dfsRek(int graf[][N], int n, int start = 0)
+{
+
+}
+
+
+
 int main()
 {
     int graf[N][N] = {0};
-    int n = beOlvas("graf.txt", graf);   //csomopontok szama
+    int n = beOlvas("C:/Users/tamas/Desktop/XI.A/info/Miko-2025-XI.A-Informatika/graf.txt", graf);   //csomopontok szama
     kiIr(graf, n);
     int graf_komplementer[N][N];
     komplementer(graf, graf_komplementer, n);
@@ -265,5 +311,13 @@ int main()
 
     cout << "Izolalt pontok szama: " << izolaltPontokSzama(graf, n) << endl;
 
+    if(kormentes(graf, n))
+    {
+        cout << "Kormentes graf" << endl;
+    }
+    else
+    {
+        cout << "NEM kormentes graf" << endl;
+    }
     return 0;
 }
