@@ -49,7 +49,7 @@ void kiIr(int graf[][N], int n)
 //start kezdo csucs
 void dfs(int graf[][N], int n, int start)
 {
-    cout << "DFS sorrend: ";
+    //cout << "DFS sorrend: ";
     stack<int> verem;
     verem.push(start);
     while(!verem.empty()){
@@ -58,7 +58,7 @@ void dfs(int graf[][N], int n, int start)
         if(!visited[u]) //meg nem latogattuk meg
         {
             visited[u] = true;
-            cout << u << " ";
+            //cout << u << " ";
             for(int i = 0; i < n; i++)
             {
                 if(!visited[i] && graf[u][i])
@@ -68,7 +68,21 @@ void dfs(int graf[][N], int n, int start)
             }
         }
     }
-    cout << endl;
+    //cout << endl;
+}
+
+//rekurziv dfs
+//!!!meghivasa elott a visited tombot nullazni kell
+void dfs_rekurziv(int graf[][N], int n, int start)
+{
+    visited[start] = true;
+    for(int i = 0; i < n; i++)
+    {
+        if(!visited[i] && graf[start][i])
+        {
+            dfs_rekurziv(graf, n, i);
+        }
+    }
 }
 
 //Breath-first search Szelessegi bejaras
@@ -76,7 +90,7 @@ void dfs(int graf[][N], int n, int start)
 //start kezdo csucs
 void bfs(int graf[][N], int n, int start)
 {
-    cout << "BFS sorrend: ";
+    //cout << "BFS sorrend: ";
     queue<int> sor;
     sor.push(start);
     while(!sor.empty())
@@ -86,7 +100,7 @@ void bfs(int graf[][N], int n, int start)
         if(!visited[u]) // meg nem latogattuk meg
         {
             visited[u] = true;
-            cout << u << " ";
+            //cout << u << " ";
             for(int i = 0; i < n; i++)
             {
                 if(!visited[i] && graf[u][i])
@@ -96,7 +110,7 @@ void bfs(int graf[][N], int n, int start)
             }
         }
     }
-    cout << endl;
+    //cout << endl;
 }
 
 //feltolt egy tombot egy ertekkel
@@ -130,7 +144,7 @@ int komponensekSzama(int graf[][N], int n)
             if(visited[i] == 0)
             {
                 start = i;
-                cout << "nem jutottam ide: " << i << endl;
+                //cout << "nem jutottam ide: " << i << endl;
                 break;
             }
         }
@@ -229,51 +243,75 @@ void komplementer(int source[][N], int dest[][N], int n)
     }
 }
 
-bool kormentes(int graf[][N], int n)
+// van-e benne kor
+bool tartalmazKort(int graf[][N], int n, int start)
 {
-    feltolt(p, n, -1);   
-    feltolt(visited, n, -1);   
-    int start = 0;
+    feltolt(p, n, -1);
+    feltolt(visited, n, false);
     stack<int> verem;
     verem.push(start);
-    while(!verem.empty()){
+    p[start] = -1;  //startnak nincs szuloje
+    while(!verem.empty())
+    {
         int u = verem.top();
         verem.pop();
-        if(!visited[u]) //meg nem latogattuk meg
+        visited[u] = true;
+        for(int i = 0; i < n; i++)
         {
-            visited[u] = true;
-            cout << u << " ";
-            for(int i = 0; i < n; i++)
+            if (!visited[i] && graf[u][i])
             {
-                if(graf[u][i])
-                {
-                    if(!visited[i])
-                    {
-                        p[i] = u;
-                        verem.push(i);
-                    }
-                    else if(p[u] != i)
-                    {
-                        return false;
-                    }
-                }
+                if(p[i] != -1) return true;
+                p[i] = u;
+                verem.push(i);
             }
         }
-        else
+    }
+    return false;
+}
+
+bool erdo(int graf[][N], int n)
+{
+    queue<int> fak;
+    //meg nem jartam sehol
+    feltolt(visited, n, 0);
+    fak.push(0);
+    int start = 0;
+    do
+    {
+        dfs(graf, n, start);
+        start = -1;
+        for(int i = 0; i < n; i++)
         {
-            return false;
+            //meg nem jartam ott
+            if(visited[i] == 0)
+            {
+                start = i;
+                fak.push(i);
+                //cout << "nem jutottam ide: " << i << endl;
+                break;
+            }
         }
     }
-    
-    return true;
+    while(start != -1);
+
+    int faSzam = 0;
+    while(!fak.empty())
+    {
+       int f = fak.front();
+       fak.pop();
+       if(tartalmazKort(graf, n, f))
+       {
+           return false;
+       }
+       faSzam++;
+    }
+    return faSzam > 1;
 }
 
-void dfsRek(int graf[][N], int n, int start = 0)
+bool fa(int graf[][N], int n)
 {
-
+    return !tartalmazKort(graf, n, 0) && komponensekSzama(graf, n) == 1;
 }
-
-
 
 int main()
 {
@@ -285,11 +323,6 @@ int main()
     cout << "A graf komplementere:" << endl;
     kiIr(graf_komplementer, n);
 
-    //dfs(graf, n, 0);
-
-    int kSz = komponensekSzama(graf, n);
-    cout << "Komponensek szama: "<< kSz << endl;
-
     int start = 0;
 
     MooreTavolsag(graf, n, start);
@@ -298,26 +331,35 @@ int main()
     {
         cout << start << " - " << i << " : " << l[i] << " tavolsagra van" << endl;
     }
-    kiirUtvonal(start, 11);
 
-    if(teljesGraf(graf, n))
-    {
-        cout << "Teljes graf" << endl;
-    }
-    else
-    {
-        cout << "Nem teljes graf" << endl;
-    }
+    kiirUtvonal(start, 3);
+
+    //dfs(graf, n, 0);
+
+    int kSz = komponensekSzama(graf, n);
+    cout << "Komponensek szama: "<< kSz << endl;
 
     cout << "Izolalt pontok szama: " << izolaltPontokSzama(graf, n) << endl;
 
-    if(kormentes(graf, n))
-    {
-        cout << "Kormentes graf" << endl;
-    }
+    if(teljesGraf(graf, n))
+        cout << "Teljes graf" << endl;
     else
-    {
-        cout << "NEM kormentes graf" << endl;
-    }
+        cout << "Nem teljes graf" << endl;
+
+    if(tartalmazKort(graf, n, 0))
+        cout << "Van benne kor" << endl;
+    else
+        cout << "Nincs benne kor" << endl;
+
+    if(fa(graf, n))
+        cout << "Ez egy fa" << endl;
+    else
+        cout << "Nem fa" << endl;
+
+    if(erdo(graf, n))
+        cout << "Erdo" << endl;
+    else
+        cout << "Nem erdo" << endl;
+
     return 0;
 }
