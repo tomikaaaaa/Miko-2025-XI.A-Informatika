@@ -6,6 +6,23 @@
 #define N 50
 using namespace std;
 
+// KOMPONENS = 
+// fokszam 
+// teljesGraf
+// graf komplementere
+// mi az a seta
+// mi az az ut
+// mi az a vonal
+// mi az a kor
+// mi az a kormentes
+// mi az az osszefuggo komponens = amikor vannak ugynevezett szigetek a grafban, tehat csak egy adott szigetet lehet bejarni onnan
+// mi az a fa
+// mi az az erdo
+// szomszedsagi matrix
+// dfs
+// bfs
+// moore algoritmus
+
 int visited[N]; //hova jutott el a BFS vagy a DFS
 int l[N]; //tavolsag vektor, minden csomopont tavolsaga a start csomopont
 int p[N]; //szulo(parent) vektor, minden csomopont tavolsaga a start csomopont
